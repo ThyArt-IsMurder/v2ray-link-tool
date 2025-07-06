@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proxy Config Converter</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        // Set theme on initial load
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        /* Custom scrollbar for a cleaner look */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .dark ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 10px;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #475569;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+       .dark ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+        .converter-card {
+            transition: all 0.3s ease-in-out;
+        }
+        .btn {
+            transition: all 0.2s ease-in-out;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        .btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .output-link {
+            word-break: break-all;
+        }
+        .error-message, .info-message {
+            animation: fadeIn 0.5s;
+        }
+        .bulk-copy-toolbar {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        .bulk-copy-toolbar.open {
+             max-height: 500px; /* Adjust as needed */
+             transition: max-height 0.5s ease-in;
+        }
+        .toggle-arrow {
+            transition: transform 0.3s;
+        }
+        .open .toggle-arrow {
+            transform: rotate(90deg);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-200 p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-8 md:mb-12">
+            <div class="text-center flex-grow">
+                <h1 class="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white">Proxy Config Converter</h1>
+                <p class="text-slate-500 dark:text-slate-400 mt-2">Easily convert between JSON, URI links, and Sing-Box remote profiles.</p>
+            </div>
+            <button id="theme-toggle" class="p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-slate-900">
+                <i class="fas fa-sun text-lg hidden dark:block"></i>
+                <i class="fas fa-moon text-lg block dark:hidden"></i>
+            </button>
+        </header>
+
+        <!-- Main Content: Converters -->
+        <main class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            
+            <!-- JSON to Link Converter -->
+            <div class="converter-card bg-white dark:bg-slate-800/50 p-6 rounded-xl shadow-lg">
+                <h2 class="text-2xl font-semibold text-slate-700 dark:text-slate-200 mb-4">JSON URL to Links</h2>
+                <div class="space-y-4">
+                    <textarea id="jsonInput" class="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Paste one or more URLs to JSON files (one per line). Other text will be ignored."></textarea>
+                    <button id="toJsonBtn" class="btn w-full bg-blue-600 text-white font-semibold py-2.5 px-4 rounded-lg hover:bg-blue-700 shadow-md">
+                        <i class="fas fa-arrow-right-arrow-left mr-2"></i>Convert to Links
+                    </button>
+                    <div id="linkOutput" class="space-y-4 pt-4">
+                        <!-- Generated links will appear here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Link to JSON Converter -->
+            <div class="converter-card bg-white dark:bg-slate-800/50 p-6 rounded-xl shadow-lg">
+                <h2 class="text-2xl font-semibold text-slate-700 dark:text-slate-200 mb-4">Links to JSON</h2>
+                <div class="space-y-4">
+                    <textarea id="linkInput" class="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="Paste one or more configuration links here (one per line)..."></textarea>
+                    <button id="fromJsonBtn" class="btn w-full bg-green-600 text-white font-semibold py-2.5 px-4 rounded-lg hover:bg-green-700 shadow-md">
+                        <i class="fas fa-arrow-right-arrow-left mr-2"></i>Convert to JSON
+                    </button>
+                    <div class="relative pt-4">
+                        <pre id="jsonOutput" class="w-full bg-slate-100 dark:bg-slate-900 p-4 rounded-md text-sm overflow-x-auto min-h-[250px] border border-slate-200 dark:border-slate-700"><code class="language-json text-slate-500 dark:text-slate-400">// Generated JSON will appear here...</code></pre>
+                        <button id="copyJsonBtn" class="copy-btn absolute top-6 right-2 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 p-2 rounded-md text-xs opacity-0 hover:opacity-100 transition-opacity">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- New Sing-Box Tool -->
+        <div class="converter-card bg-white dark:bg-slate-800/50 p-6 rounded-xl shadow-lg mt-8">
+            <h2 class="text-2xl font-semibold text-slate-700 dark:text-slate-200 mb-4">Sing-Box Link Extractor</h2>
+            <div class="space-y-4">
+                <input type="text" id="singboxLinkInput" class="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500" placeholder="Paste your sing-box://import-remote-profile link here...">
+                <button id="extractUrlBtn" class="btn w-full bg-purple-600 text-white font-semibold py-2.5 px-4 rounded-lg hover:bg-purple-700 shadow-md">
+                    <i class="fas fa-link mr-2"></i>Extract JSON URL
+                </button>
+                <div id="extractedUrlOutput" class="pt-4">
+                    <!-- Extracted URL will appear here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- UTILITY FUNCTIONS ---
+        
+        function displayError(outputElement, message) {
+            outputElement.innerHTML = `<div class="error-message text-red-500 bg-red-100 dark:bg-red-900/20 dark:text-red-400 border border-red-400 dark:border-red-500/50 rounded-md p-3">${message}</div>`;
+        }
+        
+        function displayInfo(outputElement, message) {
+            const infoDiv = document.createElement('div');
+            infoDiv.className = "info-message text-slate-600 bg-slate-100 dark:bg-slate-800 dark:text-slate-300 border border-slate-300 dark:border-slate-700 rounded-md p-3";
+            infoDiv.innerHTML = message;
+            outputElement.appendChild(infoDiv);
+        }
+
+        function copyToClipboard(textToCopy, feedbackElement) {
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = textToCopy;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            try {
+                document.execCommand('copy');
+                const originalText = feedbackElement.innerHTML;
+                feedbackElement.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                setTimeout(() => {
+                    feedbackElement.innerHTML = originalText;
+                }, 2000);
+            } catch (err) {
+                console.error('Failed to copy text: ', err);
+                const originalText = feedbackElement.innerHTML;
+                feedbackElement.innerHTML = '<i class="fas fa-times"></i> Failed!';
+                setTimeout(() => {
+                    feedbackElement.innerHTML = originalText;
+                }, 2000);
+            }
+            document.body.removeChild(tempTextArea);
+        }
+
+        /**
+         * Parses a config and returns link data and elements.
+         * @param {object} config - The parsed JSON configuration object.
+         * @returns {object} - An object containing link elements, counts, and links by type.
+         */
+        function processConfig(config) {
+            const result = {
+                linkElements: [],
+                counts: { total: 0 },
+                linksByType: {}
+            };
+
+            if (!config.outbounds || !Array.isArray(config.outbounds)) {
+                return result;
+            }
+            
+            config.outbounds.forEach(outbound => {
+                let link = '';
+                const tag = encodeURIComponent(outbound.tag || 'Unnamed');
+                const protocol = outbound.type;
+
+                switch (protocol) {
+                    case 'vless':
+                        const vlessParams = new URLSearchParams();
+                        if (outbound.transport) {
+                            vlessParams.set('type', outbound.transport.type);
+                            if (outbound.transport.path) vlessParams.set('path', outbound.transport.path);
+                            if (outbound.transport.host) vlessParams.set('host', outbound.transport.host);
+                        }
+                        if (outbound.tls) {
+                            vlessParams.set('security', outbound.tls.reality ? 'reality' : 'tls');
+                            if(outbound.tls.server_name) vlessParams.set('sni', outbound.tls.server_name);
+                            if(outbound.tls.utls?.fingerprint) vlessParams.set('fp', outbound.tls.utls.fingerprint);
+                            if(outbound.tls.reality) {
+                                if(outbound.tls.reality.public_key) vlessParams.set('pbk', outbound.tls.reality.public_key);
+                                if(outbound.tls.reality.short_id) vlessParams.set('sid', outbound.tls.reality.short_id);
+                            }
+                        }
+                         if (outbound.flow) vlessParams.set('flow', outbound.flow);
+                        
+                        link = `vless://${outbound.uuid}@${outbound.server}:${outbound.server_port}?${vlessParams.toString()}#${tag}`;
+                        break;
+
+                    case 'hysteria2':
+                        const hy2Params = new URLSearchParams();
+                        if (outbound.obfs) {
+                            hy2Params.set('obfs', outbound.obfs.type);
+                            if (outbound.obfs.password) hy2Params.set('obfs-password', outbound.obfs.password);
+                        }
+                        if (outbound.tls?.insecure) {
+                            hy2Params.set('insecure', '1');
+                        }
+                         if (outbound.tls?.server_name) {
+                            hy2Params.set('sni', outbound.tls.server_name);
+                        }
+                        link = `hy2://${outbound.password}@${outbound.server}:${outbound.server_port}?${hy2Params.toString()}#${tag}`;
+                        break;
+                    
+                    case 'http':
+                        const user = encodeURIComponent(outbound.username || '');
+                        const pass = encodeURIComponent(outbound.password || '');
+                        link = `http://${user}:${pass}@${outbound.server}:${outbound.server_port}#${tag}`;
+                        break;
+                }
+
+                if (link) {
+                    result.counts.total++;
+                    result.counts[protocol] = (result.counts[protocol] || 0) + 1;
+                    
+                    if (!result.linksByType[protocol]) {
+                        result.linksByType[protocol] = [];
+                    }
+                    result.linksByType[protocol].push(link);
+
+                    const linkElement = document.createElement('div');
+                    linkElement.className = 'bg-white dark:bg-slate-800 p-3 rounded-md flex items-center justify-between gap-4 border border-slate-200 dark:border-slate-700 my-2';
+                    linkElement.innerHTML = `
+                        <span class="output-link text-sm text-slate-700 dark:text-slate-300">${link}</span>
+                        <button class="copy-btn bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-3 py-1 rounded-md text-xs flex-shrink-0 hover:bg-slate-300 dark:hover:bg-slate-600">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                    `;
+                    linkElement.querySelector('.copy-btn').addEventListener('click', (e) => copyToClipboard(link, e.currentTarget));
+                    result.linkElements.push(linkElement);
+                }
+            });
+            return result;
+        }
+
+        // --- CORE CONVERSION LOGIC ---
+
+        // 1. JSON to Link Conversion
+        const toJsonBtn = document.getElementById('toJsonBtn');
+        const jsonInput = document.getElementById('jsonInput');
+        const linkOutput = document.getElementById('linkOutput');
+
+        toJsonBtn.addEventListener('click', async () => {
+            linkOutput.innerHTML = '';
+            const inputValue = jsonInput.value.trim();
+            const originalBtnHTML = toJsonBtn.innerHTML;
+
+            if (!inputValue) {
+                displayError(linkOutput, "Please paste one or more URLs.");
+                return;
+            }
+
+            toJsonBtn.disabled = true;
+            toJsonBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Processing...`;
+            
+            let allLinksByType = {};
+            let totalLinksFound = 0;
+
+            try {
+                const lines = inputValue.split('\n');
+                const urlLines = lines.filter(line => {
+                    const trimmedLine = line.trim();
+                    return trimmedLine.startsWith('http://') || trimmedLine.startsWith('https://');
+                });
+
+                if (urlLines.length === 0) {
+                    displayError(linkOutput, "No valid URLs found. Please paste links starting with http:// or https://.");
+                    toJsonBtn.disabled = false;
+                    toJsonBtn.innerHTML = originalBtnHTML;
+                    return;
+                }
+                
+                const processAndDisplay = (config, sourceName, parentElement) => {
+                    const sourceGroup = document.createElement('div');
+                    sourceGroup.className = 'source-group bg-slate-100 dark:bg-slate-800 p-4 rounded-lg';
+                    parentElement.appendChild(sourceGroup);
+
+                    const resultData = processConfig(config);
+                    
+                    // Aggregate links for the global toolbar
+                    Object.entries(resultData.linksByType).forEach(([protocol, links]) => {
+                        if (!allLinksByType[protocol]) {
+                            allLinksByType[protocol] = [];
+                        }
+                        allLinksByType[protocol].push(...links);
+                    });
+                    totalLinksFound += resultData.counts.total;
+
+                    const header = document.createElement('div');
+                    header.className = 'flex justify-between items-center';
+                    header.innerHTML = `
+                        <div>
+                            <h3 class="font-semibold text-slate-800 dark:text-slate-100 break-words">${sourceName}</h3>
+                            <p class="text-sm text-slate-500 dark:text-slate-400">${resultData.counts.total} links found</p>
+                        </div>
+                        ${resultData.counts.total > 0 ? `<button class="bulk-copy-toggle p-2 rounded-md text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700"><i class="fas fa-chevron-right toggle-arrow"></i> Bulk Copy</button>` : ''}
+                    `;
+                    sourceGroup.appendChild(header);
+
+                    if (resultData.counts.total > 0) {
+                        const toolbar = document.createElement('div');
+                        toolbar.className = 'bulk-copy-toolbar border-t border-slate-200 dark:border-slate-700 mt-2 pt-2';
+                        
+                        Object.entries(resultData.linksByType).forEach(([protocol, links]) => {
+                            const btn = document.createElement('button');
+                            btn.className = 'btn bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300 text-sm font-medium py-1 px-3 rounded-full mr-2 mb-2';
+                            btn.innerHTML = `<i class="fas fa-copy mr-1"></i> Copy ${resultData.counts[protocol]} ${protocol}`;
+                            btn.addEventListener('click', (e) => copyToClipboard(links.join('\n'), e.currentTarget));
+                            toolbar.appendChild(btn);
+                        });
+                        sourceGroup.appendChild(toolbar);
+
+                        header.querySelector('.bulk-copy-toggle').addEventListener('click', (e) => {
+                            e.currentTarget.classList.toggle('open');
+                            toolbar.classList.toggle('open');
+                        });
+                    }
+
+                    const linksContainer = document.createElement('div');
+                    resultData.linkElements.forEach(el => linksContainer.appendChild(el));
+                    sourceGroup.appendChild(linksContainer);
+                };
+
+                const fetchPromises = urlLines.map(url => {
+                    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+                    return fetch(proxyUrl)
+                        .then(response => {
+                            if (!response.ok) throw new Error(`Fetch failed with status ${response.status}`);
+                            return response.text();
+                        })
+                        .then(text => ({ status: 'fulfilled', value: text, url }))
+                        .catch(error => ({ status: 'rejected', reason: error, url }));
+                });
+
+                const results = await Promise.all(fetchPromises);
+                results.forEach(result => {
+                    if (result.status === 'fulfilled') {
+                        try {
+                            const config = JSON.parse(result.value);
+                            processAndDisplay(config, `Source: ${result.url}`, linkOutput);
+                        } catch (e) {
+                            const errorGroup = document.createElement('div');
+                            linkOutput.appendChild(errorGroup);
+                            displayError(errorGroup, `<b>Source: ${result.url}</b><br>Fetched content is not valid JSON.`);
+                        }
+                    } else {
+                        const errorGroup = document.createElement('div');
+                        linkOutput.appendChild(errorGroup);
+                        displayError(errorGroup, `<b>Source: ${result.url}</b><br>Failed to fetch or process URL.`);
+                    }
+                });
+                
+                if (urlLines.length > 0) {
+                    const summaryContainer = document.createElement('div');
+                    summaryContainer.className = "mb-4 space-y-4";
+                    
+                    // Global Summary Info
+                    const summaryInfo = document.createElement('div');
+                    summaryInfo.className = "info-message text-slate-600 bg-slate-100 dark:bg-slate-800 dark:text-slate-300 border border-slate-300 dark:border-slate-700 rounded-md p-3";
+                    summaryInfo.innerHTML = `<i class="fas fa-check-circle mr-2"></i>Finished! Found a total of <b>${totalLinksFound}</b> links from <b>${urlLines.length}</b> source(s).`;
+                    summaryContainer.appendChild(summaryInfo);
+
+                    // Global Bulk Copy Toolbar
+                    if(totalLinksFound > 0) {
+                        const globalToolbar = document.createElement('div');
+                        globalToolbar.className = 'source-group bg-slate-100 dark:bg-slate-800 p-4 rounded-lg';
+                        globalToolbar.innerHTML = `<h3 class="font-semibold text-slate-800 dark:text-slate-100 mb-2">Global Results</h3>`;
+                        
+                        const buttonsContainer = document.createElement('div');
+                        buttonsContainer.className = "flex flex-wrap";
+                        Object.entries(allLinksByType).forEach(([protocol, links]) => {
+                            const btn = document.createElement('button');
+                            btn.className = 'btn bg-teal-100 text-teal-700 dark:bg-teal-900/50 dark:text-teal-300 text-sm font-medium py-1 px-3 rounded-full mr-2 mb-2';
+                            btn.innerHTML = `<i class="fas fa-copy mr-1"></i> Copy All ${links.length} ${protocol}`;
+                            btn.addEventListener('click', (e) => copyToClipboard(links.join('\n'), e.currentTarget));
+                            buttonsContainer.appendChild(btn);
+                        });
+                        globalToolbar.appendChild(buttonsContainer);
+                        summaryContainer.appendChild(globalToolbar);
+                    }
+
+                    linkOutput.prepend(summaryContainer);
+                }
+
+
+            } catch (error) {
+                console.error("Conversion Error:", error);
+                displayError(linkOutput, `An unexpected error occurred: ${error.message}`);
+            } finally {
+                toJsonBtn.disabled = false;
+                toJsonBtn.innerHTML = originalBtnHTML;
+            }
+        });
+
+        // 2. Link to JSON Conversion
+        const fromJsonBtn = document.getElementById('fromJsonBtn');
+        const linkInput = document.getElementById('linkInput');
+        const jsonOutput = document.getElementById('jsonOutput').querySelector('code');
+        const copyJsonBtn = document.getElementById('copyJsonBtn');
+
+        fromJsonBtn.addEventListener('click', () => {
+            const links = linkInput.value.split('\n').filter(line => line.trim() !== '');
+            if (links.length === 0) {
+                jsonOutput.textContent = '// No links provided.';
+                copyJsonBtn.classList.add('opacity-0');
+                return;
+            }
+
+            const outbounds = [];
+            let hasError = false;
+
+            links.forEach(link => {
+                try {
+                    if (link.trim().startsWith('{')) {
+                        throw new Error("It looks like you pasted JSON. Please use the 'JSON to Links' converter.");
+                    }
+                    const url = new URL(link);
+                    const outbound = {
+                        tag: decodeURIComponent(url.hash.substring(1)) || `generated-${url.protocol.slice(0, -1)}`,
+                        server: url.hostname,
+                        server_port: parseInt(url.port, 10),
+                    };
+
+                    switch (url.protocol) {
+                        case 'vless:':
+                            outbound.type = 'vless';
+                            outbound.uuid = url.username;
+                            outbound.tls = { enabled: true };
+                            outbound.transport = {};
+                            
+                            url.searchParams.forEach((value, key) => {
+                                switch (key) {
+                                    case 'type': outbound.transport.type = value; break;
+                                    case 'path': outbound.transport.path = value; break;
+                                    case 'host': outbound.transport.host = value; break;
+                                    case 'security': 
+                                        if (value === 'reality') outbound.tls.reality = { enabled: true };
+                                        break;
+                                    case 'sni': outbound.tls.server_name = value; break;
+                                    case 'fp': outbound.tls.utls = { enabled: true, fingerprint: value }; break;
+                                    case 'pbk': if(!outbound.tls.reality) outbound.tls.reality = { enabled: true }; outbound.tls.reality.public_key = value; break;
+                                    case 'sid': if(!outbound.tls.reality) outbound.tls.reality = { enabled: true }; outbound.tls.reality.short_id = value; break;
+                                    case 'flow': outbound.flow = value; break;
+                                }
+                            });
+                            break;
+
+                        case 'hy2:':
+                        case 'hysteria2:':
+                            outbound.type = 'hysteria2';
+                            outbound.password = url.username;
+                            if (url.searchParams.has('obfs')) {
+                                outbound.obfs = { type: url.searchParams.get('obfs'), password: url.searchParams.get('obfs-password') || '' };
+                            }
+                            if (url.searchParams.get('insecure') === '1') {
+                                outbound.tls = { enabled: true, insecure: true };
+                            }
+                            if (url.searchParams.has('sni')) {
+                                if(!outbound.tls) outbound.tls = { enabled: true };
+                                outbound.tls.server_name = url.searchParams.get('sni');
+                            }
+                            break;
+                            
+                        case 'http:':
+                             outbound.type = 'http';
+                             outbound.username = decodeURIComponent(url.username);
+                             outbound.password = decodeURIComponent(url.password);
+                             break;
+
+                        default:
+                            throw new Error(`Unsupported protocol: ${url.protocol}`);
+                    }
+                    outbounds.push(outbound);
+                } catch (error) {
+                    console.error('Link parsing error:', error);
+                    hasError = true;
+                    jsonOutput.innerHTML = `<span class="text-red-500">// Error: ${error.message}</span>`;
+                }
+            });
+
+            if (!hasError) {
+                 if (outbounds.length > 0) {
+                    const finalJson = {
+                        outbounds: outbounds
+                    };
+                    jsonOutput.textContent = JSON.stringify(finalJson, null, 2);
+                    copyJsonBtn.classList.remove('opacity-0');
+                } else {
+                     jsonOutput.textContent = '// No valid links found to convert.';
+                     copyJsonBtn.classList.add('opacity-0');
+                }
+            }
+        });
+        
+        copyJsonBtn.addEventListener('click', (e) => {
+            copyToClipboard(jsonOutput.textContent, e.currentTarget);
+        });
+
+        // 3. Sing-Box Link Extractor
+        const extractUrlBtn = document.getElementById('extractUrlBtn');
+        const singboxLinkInput = document.getElementById('singboxLinkInput');
+        const extractedUrlOutput = document.getElementById('extractedUrlOutput');
+
+        extractUrlBtn.addEventListener('click', () => {
+            extractedUrlOutput.innerHTML = ''; // Clear previous results
+            const link = singboxLinkInput.value.trim();
+
+            if (!link) {
+                displayError(extractedUrlOutput, 'Please paste a sing-box link.');
+                return;
+            }
+
+            if (!link.startsWith('sing-box://import-remote-profile')) {
+                displayError(extractedUrlOutput, 'Invalid format. Link must start with "sing-box://import-remote-profile".');
+                return;
+            }
+
+            try {
+                const parsableLink = 'http://dummy.com' + link.substring('sing-box://import-remote-profile'.length);
+                const urlObj = new URL(parsableLink);
+                const encodedUrl = urlObj.searchParams.get('url');
+
+                if (!encodedUrl) {
+                    throw new Error('The link does not contain a "url" parameter.');
+                }
+
+                const decodedUrl = decodeURIComponent(encodedUrl);
+                
+                const resultElement = document.createElement('div');
+                resultElement.className = 'bg-slate-100 dark:bg-slate-800 p-3 rounded-md flex items-center justify-between gap-4';
+                resultElement.innerHTML = `
+                    <span class="output-link text-sm text-slate-700 dark:text-slate-300">${decodedUrl}</span>
+                    <button class="copy-btn bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-3 py-1 rounded-md text-xs flex-shrink-0 hover:bg-slate-300 dark:hover:bg-slate-600">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                `;
+                extractedUrlOutput.appendChild(resultElement);
+                resultElement.querySelector('.copy-btn').addEventListener('click', (e) => copyToClipboard(decodedUrl, e.currentTarget));
+
+            } catch (error) {
+                console.error("Sing-Box link parsing error:", error);
+                displayError(extractedUrlOutput, `Error parsing link: ${error.message}`);
+            }
+        });
+
+        // 4. Theme Toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        themeToggle.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            if (document.documentElement.classList.contains('dark')) {
+                localStorage.theme = 'dark';
+            } else {
+                localStorage.theme = 'light';
+            }
+        });
+
+    </script>
+</body>
+</html>
