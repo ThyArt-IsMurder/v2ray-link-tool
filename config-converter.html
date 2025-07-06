@@ -4,9 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Proxy Config Converter</title>
+    
     <!-- Favicon -->
-    <link rel="icon" type="image/webp" href="sticker.webp">
-    <link rel="apple-touch-icon" href="sticker.webp">
+    <link rel="icon" href="data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232563eb'%3e%3cpath fill-rule='evenodd' d='M15.97 2.47a.75.75 0 011.06 0l4.5 4.5a.75.75 0 010 1.06l-4.5 4.5a.75.75 0 11-1.06-1.06l3.22-3.22H3a.75.75 0 010-1.5h16.19l-3.22-3.22a.75.75 0 010-1.06zm-7.94 9a.75.75 0 010 1.06l-3.22 3.22H21a.75.75 0 010 1.5H4.81l3.22 3.22a.75.75 0 11-1.06 1.06l-4.5-4.5a.75.75 0 010-1.06l4.5-4.5a.75.75 0 011.06 0z' clip-rule='evenodd' /%3e%3c/svg%3e">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232563eb'%3e%3cpath fill-rule='evenodd' d='M15.97 2.47a.75.75 0 011.06 0l4.5 4.5a.75.75 0 010 1.06l-4.5 4.5a.75.75 0 11-1.06-1.06l3.22-3.22H3a.75.75 0 010-1.5h16.19l-3.22-3.22a.75.75 0 010-1.06zm-7.94 9a.75.75 0 010 1.06l-3.22 3.22H21a.75.75 0 010 1.5H4.81l3.22 3.22a.75.75 0 11-1.06 1.06l-4.5-4.5a.75.75 0 010-1.06l4.5-4.5a.75.75 0 011.06 0z' clip-rule='evenodd' /%3e%3c/svg%3e">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -113,8 +114,10 @@
                     <button id="toJsonBtn" class="btn w-full bg-blue-600 text-white font-semibold py-2.5 px-4 rounded-lg hover:bg-blue-700 shadow-md">
                         <i class="fas fa-arrow-right-arrow-left mr-2"></i>Convert to Links
                     </button>
-                    <div id="linkOutput" class="space-y-4 pt-4">
-                        <!-- Generated links will appear here -->
+                    <div class="relative pt-4">
+                        <div id="linkOutput" class="w-full bg-slate-100 dark:bg-slate-900 p-4 rounded-md text-sm overflow-y-auto min-h-[250px] border border-slate-200 dark:border-slate-700 space-y-4">
+                            <p class="text-slate-500 dark:text-slate-400">// Generated links will appear here...</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -291,7 +294,7 @@
             const originalBtnHTML = toJsonBtn.innerHTML;
 
             if (!inputValue) {
-                displayError(linkOutput, "Please paste one or more URLs.");
+                linkOutput.innerHTML = `<p class="text-slate-500 dark:text-slate-400">// Please paste one or more URLs.</p>`;
                 return;
             }
 
@@ -309,7 +312,7 @@
                 });
 
                 if (urlLines.length === 0) {
-                    displayError(linkOutput, "No valid URLs found. Please paste links starting with http:// or https://.");
+                    linkOutput.innerHTML = `<p class="text-slate-500 dark:text-slate-400">// No valid URLs found. Please paste links starting with http:// or https://.</p>`;
                     toJsonBtn.disabled = false;
                     toJsonBtn.innerHTML = originalBtnHTML;
                     return;
@@ -378,6 +381,9 @@
                 });
 
                 const results = await Promise.all(fetchPromises);
+                
+                linkOutput.innerHTML = ''; // Clear the placeholder text before adding results
+
                 results.forEach(result => {
                     if (result.status === 'fulfilled') {
                         try {
