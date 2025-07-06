@@ -88,14 +88,14 @@
         }
     </style>
 </head>
-<body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-200 p-4 md:p-8">
+<body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-200 p-3 sm:p-4 md:p-8">
 
     <div class="max-w-7xl mx-auto">
         <!-- Header -->
-        <header class="flex justify-between items-center mb-8 md:mb-12">
+        <header class="flex justify-between items-center mb-6 md:mb-12">
             <div class="text-center flex-grow">
-                <h1 class="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white">Proxy Config Converter</h1>
-                <p class="text-slate-500 dark:text-slate-400 mt-2">Easily convert between JSON, URI links, and Sing-Box remote profiles.</p>
+                <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900 dark:text-white">Proxy Config Converter</h1>
+                <p class="text-slate-500 dark:text-slate-400 mt-2 px-2">Easily convert between JSON, URI links, and Sing-Box remote profiles.</p>
             </div>
             <button id="theme-toggle" class="p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-slate-900">
                 <i class="fas fa-sun text-lg hidden dark:block"></i>
@@ -104,18 +104,18 @@
         </header>
 
         <!-- Main Content: Converters -->
-        <main class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <main class="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
             
             <!-- JSON to Link Converter -->
-            <div class="converter-card bg-white dark:bg-slate-800/50 p-6 rounded-xl shadow-lg">
-                <h2 class="text-2xl font-semibold text-slate-700 dark:text-slate-200 mb-4">JSON URL to Links</h2>
+            <div class="converter-card bg-white dark:bg-slate-800/50 p-4 sm:p-6 rounded-xl shadow-lg">
+                <h2 class="text-xl sm:text-2xl font-semibold text-slate-700 dark:text-slate-200 mb-4">JSON to Links</h2>
                 <div class="space-y-4">
-                    <textarea id="jsonInput" class="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Paste one or more URLs to JSON files (one per line). Other text will be ignored."></textarea>
+                    <textarea id="jsonInput" class="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Paste raw JSON or URLs to JSON files (one per line)."></textarea>
                     <button id="toJsonBtn" class="btn w-full bg-blue-600 text-white font-semibold py-2.5 px-4 rounded-lg hover:bg-blue-700 shadow-md">
                         <i class="fas fa-arrow-right-arrow-left mr-2"></i>Convert to Links
                     </button>
                     <div class="relative pt-4">
-                        <div id="linkOutput" class="w-full bg-slate-100 dark:bg-slate-900 p-4 rounded-md text-sm overflow-y-auto min-h-[250px] border border-slate-200 dark:border-slate-700 space-y-4">
+                        <div id="linkOutput" class="w-full bg-slate-100 dark:bg-slate-900 p-3 sm:p-4 rounded-md text-sm overflow-y-auto min-h-[250px] border border-slate-200 dark:border-slate-700 space-y-4">
                             <p class="text-slate-500 dark:text-slate-400">// Generated links will appear here...</p>
                         </div>
                     </div>
@@ -123,8 +123,8 @@
             </div>
 
             <!-- Link to JSON Converter -->
-            <div class="converter-card bg-white dark:bg-slate-800/50 p-6 rounded-xl shadow-lg">
-                <h2 class="text-2xl font-semibold text-slate-700 dark:text-slate-200 mb-4">Links to JSON</h2>
+            <div class="converter-card bg-white dark:bg-slate-800/50 p-4 sm:p-6 rounded-xl shadow-lg">
+                <h2 class="text-xl sm:text-2xl font-semibold text-slate-700 dark:text-slate-200 mb-4">Links to JSON</h2>
                 <div class="space-y-4">
                     <textarea id="linkInput" class="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="Paste one or more configuration links here (one per line)..."></textarea>
                     <button id="fromJsonBtn" class="btn w-full bg-green-600 text-white font-semibold py-2.5 px-4 rounded-lg hover:bg-green-700 shadow-md">
@@ -141,8 +141,8 @@
         </main>
 
         <!-- New Sing-Box Tool -->
-        <div class="converter-card bg-white dark:bg-slate-800/50 p-6 rounded-xl shadow-lg mt-8">
-            <h2 class="text-2xl font-semibold text-slate-700 dark:text-slate-200 mb-4">Sing-Box Link Extractor</h2>
+        <div class="converter-card bg-white dark:bg-slate-800/50 p-4 sm:p-6 rounded-xl shadow-lg mt-6 md:mt-8">
+            <h2 class="text-xl sm:text-2xl font-semibold text-slate-700 dark:text-slate-200 mb-4">Sing-Box Link Extractor</h2>
             <div class="space-y-4">
                 <input type="text" id="singboxLinkInput" class="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500" placeholder="Paste your sing-box://import-remote-profile link here...">
                 <button id="extractUrlBtn" class="btn w-full bg-purple-600 text-white font-semibold py-2.5 px-4 rounded-lg hover:bg-purple-700 shadow-md">
@@ -294,7 +294,7 @@
             const originalBtnHTML = toJsonBtn.innerHTML;
 
             if (!inputValue) {
-                linkOutput.innerHTML = `<p class="text-slate-500 dark:text-slate-400">// Please paste one or more URLs.</p>`;
+                linkOutput.innerHTML = `<p class="text-slate-500 dark:text-slate-400">// Please paste raw JSON or URLs.</p>`;
                 return;
             }
 
@@ -303,6 +303,7 @@
             
             let allLinksByType = {};
             let totalLinksFound = 0;
+            let totalSourcesProcessed = 0;
 
             try {
                 const lines = inputValue.split('\n');
@@ -310,9 +311,10 @@
                     const trimmedLine = line.trim();
                     return trimmedLine.startsWith('http://') || trimmedLine.startsWith('https://');
                 });
+                const jsonBlockText = lines.filter(line => !urlLines.includes(line)).join('\n').trim();
 
-                if (urlLines.length === 0) {
-                    linkOutput.innerHTML = `<p class="text-slate-500 dark:text-slate-400">// No valid URLs found. Please paste links starting with http:// or https://.</p>`;
+                if (urlLines.length === 0 && !jsonBlockText) {
+                    linkOutput.innerHTML = `<p class="text-slate-500 dark:text-slate-400">// No valid URLs or JSON found.</p>`;
                     toJsonBtn.disabled = false;
                     toJsonBtn.innerHTML = originalBtnHTML;
                     return;
@@ -325,7 +327,6 @@
 
                     const resultData = processConfig(config);
                     
-                    // Aggregate links for the global toolbar
                     Object.entries(resultData.linksByType).forEach(([protocol, links]) => {
                         if (!allLinksByType[protocol]) {
                             allLinksByType[protocol] = [];
@@ -368,71 +369,82 @@
                     resultData.linkElements.forEach(el => linksContainer.appendChild(el));
                     sourceGroup.appendChild(linksContainer);
                 };
-
-                const fetchPromises = urlLines.map(url => {
-                    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
-                    return fetch(proxyUrl)
-                        .then(response => {
-                            if (!response.ok) throw new Error(`Fetch failed with status ${response.status}`);
-                            return response.text();
-                        })
-                        .then(text => ({ status: 'fulfilled', value: text, url }))
-                        .catch(error => ({ status: 'rejected', reason: error, url }));
-                });
-
-                const results = await Promise.all(fetchPromises);
                 
                 linkOutput.innerHTML = ''; // Clear the placeholder text before adding results
 
-                results.forEach(result => {
-                    if (result.status === 'fulfilled') {
-                        try {
-                            const config = JSON.parse(result.value);
-                            processAndDisplay(config, `Source: ${result.url}`, linkOutput);
-                        } catch (e) {
-                            const errorGroup = document.createElement('div');
-                            linkOutput.appendChild(errorGroup);
-                            displayError(errorGroup, `<b>Source: ${result.url}</b><br>Fetched content is not valid JSON.`);
-                        }
-                    } else {
-                        const errorGroup = document.createElement('div');
-                        linkOutput.appendChild(errorGroup);
-                        displayError(errorGroup, `<b>Source: ${result.url}</b><br>Failed to fetch or process URL.`);
+                // Process raw JSON block first
+                if (jsonBlockText) {
+                    totalSourcesProcessed++;
+                    try {
+                        const config = JSON.parse(jsonBlockText);
+                        processAndDisplay(config, "Source: Pasted JSON", linkOutput);
+                    } catch (e) {
+                         const errorGroup = document.createElement('div');
+                         linkOutput.appendChild(errorGroup);
+                         displayError(errorGroup, `<b>Source: Pasted JSON</b><br>The pasted text is not valid JSON.`);
                     }
-                });
-                
-                if (urlLines.length > 0) {
-                    const summaryContainer = document.createElement('div');
-                    summaryContainer.className = "mb-4 space-y-4";
-                    
-                    // Global Summary Info
-                    const summaryInfo = document.createElement('div');
-                    summaryInfo.className = "info-message text-slate-600 bg-slate-100 dark:bg-slate-800 dark:text-slate-300 border border-slate-300 dark:border-slate-700 rounded-md p-3";
-                    summaryInfo.innerHTML = `<i class="fas fa-check-circle mr-2"></i>Finished! Found a total of <b>${totalLinksFound}</b> links from <b>${urlLines.length}</b> source(s).`;
-                    summaryContainer.appendChild(summaryInfo);
-
-                    // Global Bulk Copy Toolbar
-                    if(totalLinksFound > 0) {
-                        const globalToolbar = document.createElement('div');
-                        globalToolbar.className = 'source-group bg-slate-100 dark:bg-slate-800 p-4 rounded-lg';
-                        globalToolbar.innerHTML = `<h3 class="font-semibold text-slate-800 dark:text-slate-100 mb-2">Global Results</h3>`;
-                        
-                        const buttonsContainer = document.createElement('div');
-                        buttonsContainer.className = "flex flex-wrap";
-                        Object.entries(allLinksByType).forEach(([protocol, links]) => {
-                            const btn = document.createElement('button');
-                            btn.className = 'btn bg-teal-100 text-teal-700 dark:bg-teal-900/50 dark:text-teal-300 text-sm font-medium py-1 px-3 rounded-full mr-2 mb-2';
-                            btn.innerHTML = `<i class="fas fa-copy mr-1"></i> Copy All ${links.length} ${protocol}`;
-                            btn.addEventListener('click', (e) => copyToClipboard(links.join('\n'), e.currentTarget));
-                            buttonsContainer.appendChild(btn);
-                        });
-                        globalToolbar.appendChild(buttonsContainer);
-                        summaryContainer.appendChild(globalToolbar);
-                    }
-
-                    linkOutput.prepend(summaryContainer);
                 }
 
+                // Then process all URLs
+                if (urlLines.length > 0) {
+                    const fetchPromises = urlLines.map(url => {
+                        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+                        return fetch(proxyUrl)
+                            .then(response => {
+                                if (!response.ok) throw new Error(`Fetch failed with status ${response.status}`);
+                                return response.text();
+                            })
+                            .then(text => ({ status: 'fulfilled', value: text, url }))
+                            .catch(error => ({ status: 'rejected', reason: error, url }));
+                    });
+
+                    const results = await Promise.all(fetchPromises);
+                    results.forEach(result => {
+                        totalSourcesProcessed++;
+                        if (result.status === 'fulfilled') {
+                            try {
+                                const config = JSON.parse(result.value);
+                                processAndDisplay(config, `Source: ${result.url}`, linkOutput);
+                            } catch (e) {
+                                const errorGroup = document.createElement('div');
+                                linkOutput.appendChild(errorGroup);
+                                displayError(errorGroup, `<b>Source: ${result.url}</b><br>Fetched content is not valid JSON.`);
+                            }
+                        } else {
+                            const errorGroup = document.createElement('div');
+                            linkOutput.appendChild(errorGroup);
+                            displayError(errorGroup, `<b>Source: ${result.url}</b><br>Failed to fetch or process URL.`);
+                        }
+                    });
+                }
+                
+                const summaryContainer = document.createElement('div');
+                summaryContainer.className = "mb-4 space-y-4";
+                
+                const summaryInfo = document.createElement('div');
+                summaryInfo.className = "info-message text-slate-600 bg-slate-100 dark:bg-slate-800 dark:text-slate-300 border border-slate-300 dark:border-slate-700 rounded-md p-3";
+                summaryInfo.innerHTML = `<i class="fas fa-check-circle mr-2"></i>Finished! Found a total of <b>${totalLinksFound}</b> links from <b>${totalSourcesProcessed}</b> source(s).`;
+                summaryContainer.appendChild(summaryInfo);
+
+                if(totalLinksFound > 0) {
+                    const globalToolbar = document.createElement('div');
+                    globalToolbar.className = 'source-group bg-slate-100 dark:bg-slate-800 p-4 rounded-lg';
+                    globalToolbar.innerHTML = `<h3 class="font-semibold text-slate-800 dark:text-slate-100 mb-2">Global Results</h3>`;
+                    
+                    const buttonsContainer = document.createElement('div');
+                    buttonsContainer.className = "flex flex-wrap";
+                    Object.entries(allLinksByType).forEach(([protocol, links]) => {
+                        const btn = document.createElement('button');
+                        btn.className = 'btn bg-teal-100 text-teal-700 dark:bg-teal-900/50 dark:text-teal-300 text-sm font-medium py-1 px-3 rounded-full mr-2 mb-2';
+                        btn.innerHTML = `<i class="fas fa-copy mr-1"></i> Copy All ${links.length} ${protocol}`;
+                        btn.addEventListener('click', (e) => copyToClipboard(links.join('\n'), e.currentTarget));
+                        buttonsContainer.appendChild(btn);
+                    });
+                    globalToolbar.appendChild(buttonsContainer);
+                    summaryContainer.appendChild(globalToolbar);
+                }
+
+                linkOutput.prepend(summaryContainer);
 
             } catch (error) {
                 console.error("Conversion Error:", error);
