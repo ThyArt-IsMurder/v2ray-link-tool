@@ -1,0 +1,79 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+body {
+    font-family: 'Inter', sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Custom scrollbar for a cleaner look */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+.dark ::-webkit-scrollbar-track {
+    background: #1e293b;
+}
+::-webkit-scrollbar-thumb {
+    background: #94a3b8;
+    border-radius: 10px;
+}
+.dark ::-webkit-scrollbar-thumb {
+    background: #475569;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
+}
+
+.converter-card {
+    transition: all 0.3s ease-in-out;
+}
+
+.btn {
+    transition: all 0.2s ease-in-out;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+}
+
+.btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.output-link {
+    word-break: break-all;
+}
+
+.error-message, .info-message {
+    animation: fadeIn 0.5s;
+}
+
+.bulk-copy-toolbar {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+}
+
+.bulk-copy-toolbar.open {
+     max-height: 500px; /* Adjust as needed */
+     transition: max-height 0.5s ease-in;
+}
+
+.toggle-arrow {
+    transition: transform 0.3s;
+}
+
+.open .toggle-arrow {
+    transform: rotate(90deg);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proxy Config Converter</title>
+    
+    <!-- Tailwind CSS from CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Link to your custom CSS file -->
+    <link rel="stylesheet" href="style.css">
+
+</head>
+<body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-200 p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-8 md:mb-12">
+            <div class="text-center flex-grow">
+                <h1 class="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white">Proxy Config Converter</h1>
+                <p class="text-slate-500 dark:text-slate-400 mt-2">Easily convert between JSON, URI links, and Sing-Box remote profiles.</p>
+            </div>
+            <button id="theme-toggle" class="p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-slate-900">
+                <i class="fas fa-sun text-lg hidden dark:block"></i>
+                <i class="fas fa-moon text-lg block dark:hidden"></i>
+            </button>
+        </header>
+
+        <!-- Main Content: Converters -->
+        <main class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            
+            <!-- JSON to Link Converter -->
+            <div class="converter-card bg-white dark:bg-slate-800/50 p-6 rounded-xl shadow-lg">
+                <h2 class="text-2xl font-semibold text-slate-700 dark:text-slate-200 mb-4">JSON URL to Links</h2>
+                <div class="space-y-4">
+                    <textarea id="jsonInput" class="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Paste one or more URLs to JSON files (one per line). Other text will be ignored."></textarea>
+                    <button id="toJsonBtn" class="btn w-full bg-blue-600 text-white font-semibold py-2.5 px-4 rounded-lg hover:bg-blue-700 shadow-md">
+                        <i class="fas fa-arrow-right-arrow-left mr-2"></i>Convert to Links
+                    </button>
+                    <div id="linkOutput" class="space-y-4 pt-4">
+                        <!-- Generated links will appear here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Link to JSON Converter -->
+            <div class="converter-card bg-white dark:bg-slate-800/50 p-6 rounded-xl shadow-lg">
+                <h2 class="text-2xl font-semibold text-slate-700 dark:text-slate-200 mb-4">Links to JSON</h2>
+                <div class="space-y-4">
+                    <textarea id="linkInput" class="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="Paste one or more configuration links here (one per line)..."></textarea>
+                    <button id="fromJsonBtn" class="btn w-full bg-green-600 text-white font-semibold py-2.5 px-4 rounded-lg hover:bg-green-700 shadow-md">
+                        <i class="fas fa-arrow-right-arrow-left mr-2"></i>Convert to JSON
+                    </button>
+                    <div class="relative pt-4">
+                        <pre id="jsonOutput" class="w-full bg-slate-100 dark:bg-slate-900 p-4 rounded-md text-sm overflow-x-auto min-h-[250px] border border-slate-200 dark:border-slate-700"><code class="language-json text-slate-500 dark:text-slate-400">// Generated JSON will appear here...</code></pre>
+                        <button id="copyJsonBtn" class="copy-btn absolute top-6 right-2 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 p-2 rounded-md text-xs opacity-0 hover:opacity-100 transition-opacity">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- New Sing-Box Tool -->
+        <div class="converter-card bg-white dark:bg-slate-800/50 p-6 rounded-xl shadow-lg mt-8">
+            <h2 class="text-2xl font-semibold text-slate-700 dark:text-slate-200 mb-4">Sing-Box Link Extractor</h2>
+            <div class="space-y-4">
+                <input type="text" id="singboxLinkInput" class="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500" placeholder="Paste your sing-box://import-remote-profile link here...">
+                <button id="extractUrlBtn" class="btn w-full bg-purple-600 text-white font-semibold py-2.5 px-4 rounded-lg hover:bg-purple-700 shadow-md">
+                    <i class="fas fa-link mr-2"></i>Extract JSON URL
+                </button>
+                <div id="extractedUrlOutput" class="pt-4">
+                    <!-- Extracted URL will appear here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Link to your JavaScript file -->
+    <script src="script.js"></script>
+</body>
+</html>
