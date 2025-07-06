@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proxy Config Converter</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232563eb'%3e%3cpath fill-rule='evenodd' d='M15.97 2.47a.75.75 0 011.06 0l4.5 4.5a.75.75 0 010 1.06l-4.5 4.5a.75.75 0 11-1.06-1.06l3.22-3.22H3a.75.75 0 010-1.5h16.19l-3.22-3.22a.75.75 0 010-1.06zm-7.94 9a.75.75 0 010 1.06l-3.22 3.22H21a.75.75 0 010 1.5H4.81l3.22 3.22a.75.75 0 11-1.06 1.06l-4.5-4.5a.75.75 0 010-1.06l4.5-4.5a.75.75 0 011.06 0z' clip-rule='evenodd' /%3e%3c/svg%3e">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232563eb'%3e%3cpath fill-rule='evenodd' d='M15.97 2.47a.75.75 0 011.06 0l4.5 4.5a.75.75 0 010 1.06l-4.5 4.5a.75.75 0 11-1.06-1.06l3.22-3.22H3a.75.75 0 010-1.5h16.19l-3.22-3.22a.75.75 0 010-1.06zm-7.94 9a.75.75 0 010 1.06l-3.22 3.22H21a.75.75 0 010 1.5H4.81l3.22 3.22a.75.75 0 11-1.06 1.06l-4.5-4.5a.75.75 0 010-1.06l4.5-4.5a.75.75 0 011.06 0z' clip-rule='evenodd' /%3e%3c/svg%3e">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- QR Code Generator Library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+    <script>
+        // Set theme on initial load
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        /* Custom scrollbar for a cleaner look */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .dark ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 10px;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #475569;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+       .dark ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+        .converter-card {
+            transition: all 0.3s ease-in-out;
+        }
+        .btn {
+            transition: all 0.2s ease-in-out;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        .btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .output-link {
+            word-break: break-all;
+        }
+        .error-message, .info-message {
+            animation: fadeIn 0.5s;
+        }
+        #qrCodeCanvas {
+            border-radius: 0.5rem;
+            border: 4px solid white;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-200 p-3 sm:p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-6 md:mb-12">
+            <div class="text-center flex-grow">
+                <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900 dark:text-white">Proxy Config Converter</h1>
+                <p class="text-slate-500 dark:text-slate-400 mt-2 px-2">A suite of tools for proxy configurations.</p>
+            </div>
+            <button id="theme-toggle" class="p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-slate-900">
+                <i class="fas fa-sun text-lg hidden dark:block"></i>
+                <i class="fas fa-moon text-lg block dark:hidden"></i>
+            </button>
+        </header>
+
+        <!-- Main Content: Converters -->
+        <main class="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
+            
+            <!-- JSON to Link Converter -->
+            <div class="converter-card bg-white dark:bg-slate-800/50 p-4 sm:p-6 rounded-xl shadow-lg">
+                <h2 class="text-xl sm:text-2xl font-semibold text-slate-700 dark:text-slate-200 mb-4">JSON to Links</h2>
+                <div class="space-y-4">
+                    <textarea id="jsonInput" class="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Paste raw JSON or URLs to JSON files (one per line)."></textarea>
+                    <button id="toJsonBtn" class="btn w-full bg-blue-600 text-white font-semibold py-2.5 px-4 rounded-lg hover:bg-blue-700 shadow-md">
+                        <i class="fas fa-arrow-right-arrow-left mr-2"></i>Convert to Links
+                    </button>
+                    <div class="relative pt-4">
+                        <div id="linkOutput" class="w-full bg-slate-100 dark:bg-slate-900 p-3 sm:p-4 rounded-md text-sm overflow-y-auto min-h-[250px] border border-slate-200 dark:border-slate-700 space-y-4">
+                            <p class="text-slate-500 dark:text-slate-400">// Generated links will appear here...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Configs to JSON Converter -->
+            <div class="converter-card bg-white dark:bg-slate-800/50 p-4 sm:p-6 rounded-xl shadow-lg">
+                <h2 class="text-xl sm:text-2xl font-semibold text-slate-700 dark:text-slate-200 mb-4">Configs to JSON</h2>
+                <div class="space-y-4">
+                    <textarea id="linkInput" class="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="Paste one or more configuration links here (one per line)..."></textarea>
+                    <button id="fromJsonBtn" class="btn w-full bg-green-600 text-white font-semibold py-2.5 px-4 rounded-lg hover:bg-green-700 shadow-md">
+                        <i class="fas fa-arrow-right-arrow-left mr-2"></i>Convert to JSON
+                    </button>
+                    <div class="relative pt-4">
+                        <pre id="jsonOutput" class="w-full bg-slate-100 dark:bg-slate-900 p-4 rounded-md text-sm overflow-x-auto min-h-[250px] border border-slate-200 dark:border-slate-700"><code class="language-json text-slate-500 dark:text-slate-400">// Generated JSON will appear here...</code></pre>
+                        <button id="copyJsonBtn" class="copy-btn absolute top-6 right-2 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 p-2 rounded-md text-xs opacity-0 hover:opacity-100 transition-opacity">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- QR Code Generator -->
+            <div class="converter-card bg-white dark:bg-slate-800/50 p-4 sm:p-6 rounded-xl shadow-lg">
+                <h2 class="text-xl sm:text-2xl font-semibold text-slate-700 dark:text-slate-200 mb-4">QR Code Generator</h2>
+                <div class="space-y-4">
+                    <input type="text" id="qrCodeInput" class="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md focus:ring-2 focus:ring-teal-500 focus:border-teal-500" placeholder="Paste a single config link here...">
+                    <button id="generateQrBtn" class="btn w-full bg-teal-600 text-white font-semibold py-2.5 px-4 rounded-lg hover:bg-teal-700 shadow-md">
+                        <i class="fas fa-qrcode mr-2"></i>Generate QR Code
+                    </button>
+                    <div id="qrCodeOutput" class="pt-4 flex justify-center items-center bg-slate-100 dark:bg-slate-900 rounded-md min-h-[180px]">
+                        <!-- QR Code will appear here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Name Beautifier -->
+            <div class="converter-card bg-white dark:bg-slate-800/50 p-4 sm:p-6 rounded-xl shadow-lg">
+                <h2 class="text-xl sm:text-2xl font-semibold text-slate-700 dark:text-slate-200 mb-4">AI Name Beautifier</h2>
+                <div class="space-y-4">
+                     <textarea id="beautifyInput" class="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500" rows="4" placeholder="Paste one or more configuration links..."></textarea>
+                      <textarea id="beautifyOutput" readonly class="w-full p-3 bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md" rows="4" placeholder="// Beautified links will appear here..."></textarea>
+                </div>
+                <button id="beautifyRunBtn" class="btn w-full mt-4 bg-purple-600 text-white font-semibold py-2.5 px-4 rounded-lg hover:bg-purple-700 shadow-md">
+                    <i class="fas fa-wand-magic-sparkles mr-2"></i>Beautify Names
+                </button>
+            </div>
+
+            <!-- Sing-Box Link Extractor -->
+            <div class="converter-card bg-white dark:bg-slate-800/50 p-4 sm:p-6 rounded-xl shadow-lg lg:col-span-2">
+                <h2 class="text-xl sm:text-2xl font-semibold text-slate-700 dark:text-slate-200 mb-4">Sing-Box Link Extractor</h2>
+                <div class="space-y-4">
+                    <input type="text" id="singboxLinkInput" class="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Paste your sing-box://import-remote-profile link here...">
+                    <button id="extractUrlBtn" class="btn w-full bg-indigo-600 text-white font-semibold py-2.5 px-4 rounded-lg hover:bg-indigo-700 shadow-md">
+                        <i class="fas fa-link mr-2"></i>Extract JSON URL
+                    </button>
+                    <div id="extractedUrlOutput" class="pt-4">
+                        <!-- Extracted URL will appear here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- API Key Management -->
+            <div class="converter-card bg-white dark:bg-slate-800/50 p-4 sm:p-6 rounded-xl shadow-lg lg:col-span-2">
+                <h2 class="text-xl sm:text-2xl font-semibold text-slate-700 dark:text-slate-200 mb-4">API Key Management</h2>
+                 <label for="apiKeyInput" class="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">Google Gemini API Key:</label>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <input type="password" id="apiKeyInput" class="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500" placeholder="Enter your API key here...">
+                    <button id="saveApiKeyBtn" class="btn w-full bg-orange-600 text-white font-semibold py-2.5 px-4 rounded-lg hover:bg-orange-700 shadow-md">
+                        <i class="fas fa-save mr-2"></i>Save Key
+                    </button>
+                </div>
+                <p id="apiKeyStatus" class="text-sm text-slate-500 dark:text-slate-400 mt-2"></p>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // --- UTILITY FUNCTIONS ---
+        
+        function displayError(outputElement, message) {
+            outputElement.innerHTML = `<div class="error-message text-red-500 bg-red-100 dark:bg-red-900/20 dark:text-red-400 border border-red-400 dark:border-red-500/50 rounded-md p-3">${message}</div>`;
+        }
+        
+        function displayInfo(outputElement, message) {
+            const infoDiv = document.createElement('div');
+            infoDiv.className = "info-message text-slate-600 bg-slate-100 dark:bg-slate-800 dark:text-slate-300 border border-slate-300 dark:border-slate-700 rounded-md p-3";
+            infoDiv.innerHTML = message;
+            outputElement.appendChild(infoDiv);
+        }
+
+        function copyToClipboard(textToCopy, feedbackElement) {
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = textToCopy;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            try {
+                document.execCommand('copy');
+                const originalText = feedbackElement.innerHTML;
+                feedbackElement.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                setTimeout(() => {
+                    feedbackElement.innerHTML = originalText;
+                }, 2000);
+            } catch (err) {
+                console.error('Failed to copy text: ', err);
+                const originalText = feedbackElement.innerHTML;
+                feedbackElement.innerHTML = '<i class="fas fa-times"></i> Failed!';
+                setTimeout(() => {
+                    feedbackElement.innerHTML = originalText;
+                }, 2000);
+            }
+            document.body.removeChild(tempTextArea);
+        }
+        
+        async function fetchWithProxies(url) {
+            const proxies = [
+                `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+                `https://corsproxy.io/?${encodeURIComponent(url)}`,
+                `https://cors.bridged.cc/${url}`
+            ];
+
+            for (const proxyUrl of proxies) {
+                try {
+                    const response = await fetch(proxyUrl);
+                    if (response.ok) {
+                        return response;
+                    }
+                } catch (e) {
+                    console.warn(`Proxy ${proxyUrl} failed:`, e);
+                }
+            }
+            throw new Error('Failed to fetch URL through all available proxies. The server may be down or blocking requests.');
+        }
+
+
+        /**
+         * Parses a config and returns link data and elements.
+         * @param {object} config - The parsed JSON configuration object.
+         * @returns {object} - An object containing link elements, counts, and links by type.
+         */
+        function processConfig(config) {
+            const result = {
+                linkElements: [],
+                allLinks: [],
+                counts: { total: 0 },
+                linksByType: {}
+            };
+
+            if (!config.outbounds || !Array.isArray(config.outbounds)) {
+                return result;
+            }
+            
+            config.outbounds.forEach(outbound => {
+                let link = '';
+                const tag = outbound.tag || 'Unnamed';
+                const protocol = outbound.type;
+
+                switch (protocol) {
+                    case 'vless':
+                        const vlessParams = new URLSearchParams();
+                        if (outbound.transport) {
+                            vlessParams.set('type', outbound.transport.type);
+                            if (outbound.transport.path) vlessParams.set('path', outbound.transport.path);
+                            if (outbound.transport.host) vlessParams.set('host', outbound.transport.host);
+                        }
+                        if (outbound.tls) {
+                            vlessParams.set('security', outbound.tls.reality ? 'reality' : 'tls');
+                            if(outbound.tls.server_name) vlessParams.set('sni', outbound.tls.server_name);
+                            if(outbound.tls.utls?.fingerprint) vlessParams.set('fp', outbound.tls.utls.fingerprint);
+                            if(outbound.tls.reality) {
+                                if(outbound.tls.reality.public_key) vlessParams.set('pbk', outbound.tls.reality.public_key);
+                                if(outbound.tls.reality.short_id) vlessParams.set('sid', outbound.tls.reality.short_id);
+                            }
+                        }
+                         if (outbound.flow) vlessParams.set('flow', outbound.flow);
+                        
+                        link = `vless://${outbound.uuid}@${outbound.server}:${outbound.server_port}?${vlessParams.toString()}#${encodeURIComponent(tag)}`;
+                        break;
+
+                    case 'hysteria2':
+                        const hy2Params = new URLSearchParams();
+                        if (outbound.obfs) {
+                            hy2Params.set('obfs', outbound.obfs.type);
+                            if (outbound.obfs.password) hy2Params.set('obfs-password', outbound.obfs.password);
+                        }
+                        if (outbound.tls?.insecure) {
+                            hy2Params.set('insecure', '1');
+                        }
+                         if (outbound.tls?.server_name) {
+                            hy2Params.set('sni', outbound.tls.server_name);
+                        }
+                        link = `hy2://${outbound.password}@${outbound.server}:${outbound.server_port}?${hy2Params.toString()}#${encodeURIComponent(tag)}`;
+                        break;
+                    
+                    case 'http':
+                        const user = encodeURIComponent(outbound.username || '');
+                        const pass = encodeURIComponent(outbound.password || '');
+                        link = `http://${user}:${pass}@${outbound.server}:${outbound.server_port}#${encodeURIComponent(tag)}`;
+                        break;
+                }
+
+                if (link) {
+                    result.counts.total++;
+                    result.counts[protocol] = (result.counts[protocol] || 0) + 1;
+                    result.allLinks.push(link);
+                    
+                    if (!result.linksByType[protocol]) {
+                        result.linksByType[protocol] = [];
+                    }
+                    result.linksByType[protocol].push(link);
+
+                    const linkElement = document.createElement('div');
+                    linkElement.className = 'bg-white dark:bg-slate-800 p-3 rounded-md flex items-center justify-between gap-4 border border-slate-200 dark:border-slate-700 my-2';
+                    linkElement.dataset.originalTag = tag;
+                    linkElement.dataset.fullLink = link;
+                    linkElement.dataset.protocol = protocol;
+
+                    linkElement.innerHTML = `
+                        <span class="output-link text-sm text-slate-700 dark:text-slate-300">
+                            <span class="link-protocol">${protocol}://</span>...<span class="link-tag">#${tag}</span>
+                        </span>
+                        <button class="copy-btn bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-3 py-1 rounded-md text-xs flex-shrink-0 hover:bg-slate-300 dark:hover:bg-slate-600">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                    `;
+                    linkElement.querySelector('.copy-btn').addEventListener('click', (e) => copyToClipboard(linkElement.dataset.fullLink, e.currentTarget));
+                    result.linkElements.push(linkElement);
+                }
+            });
+            return result;
+        }
+
+        // --- MAIN SCRIPT EXECUTION ---
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // 1. JSON to Link Conversion
+            const toJsonBtn = document.getElementById('toJsonBtn');
+            const jsonInput = document.getElementById('jsonInput');
+            const linkOutput = document.getElementById('linkOutput');
+
+            if (toJsonBtn) {
+                toJsonBtn.addEventListener('click', async () => {
+                    linkOutput.innerHTML = '';
+                    const inputValue = jsonInput.value.trim();
+                    const originalBtnHTML = toJsonBtn.innerHTML;
+
+                    if (!inputValue) {
+                        linkOutput.innerHTML = `<p class="text-slate-500 dark:text-slate-400">// Please paste raw JSON or URLs.</p>`;
+                        return;
+                    }
+
+                    toJsonBtn.disabled = true;
+                    toJsonBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Processing...`;
+                    
+                    let allLinksByType = {};
+                    let totalLinksFound = 0;
+                    let totalSourcesProcessed = 0;
+
+                    try {
+                        const lines = inputValue.split('\n');
+                        const urlLines = lines.filter(line => {
+                            const trimmedLine = line.trim();
+                            return trimmedLine.startsWith('http://') || trimmedLine.startsWith('https://');
+                        });
+                        const jsonBlockText = lines.filter(line => !urlLines.includes(line)).join('\n').trim();
+
+                        if (urlLines.length === 0 && !jsonBlockText) {
+                            linkOutput.innerHTML = `<p class="text-slate-500 dark:text-slate-400">// No valid URLs or JSON found.</p>`;
+                            toJsonBtn.disabled = false;
+                            toJsonBtn.innerHTML = originalBtnHTML;
+                            return;
+                        }
+                        
+                        const processAndDisplay = (config, sourceName, parentElement) => {
+                            const sourceGroup = document.createElement('div');
+                            sourceGroup.className = 'source-group bg-slate-100 dark:bg-slate-800 p-4 rounded-lg';
+                            parentElement.appendChild(sourceGroup);
+
+                            const resultData = processConfig(config);
+                            
+                            Object.entries(resultData.linksByType).forEach(([protocol, links]) => {
+                                if (!allLinksByType[protocol]) {
+                                    allLinksByType[protocol] = [];
+                                }
+                                allLinksByType[protocol].push(...links);
+                            });
+                            totalLinksFound += resultData.counts.total;
+
+                            const header = document.createElement('div');
+                            header.className = 'flex justify-between items-center flex-wrap gap-2';
+                            header.innerHTML = `
+                                <div>
+                                    <h3 class="font-semibold text-slate-800 dark:text-slate-100 break-words">${sourceName}</h3>
+                                    <p class="text-sm text-slate-500 dark:text-slate-400">${resultData.counts.total} links found</p>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    ${resultData.counts.total > 0 ? `<button class="copy-all-source-btn btn bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300 text-sm font-medium py-1 px-3 rounded-full"><i class="fas fa-copy mr-1"></i> Copy All</button>` : ''}
+                                </div>
+                            `;
+                            sourceGroup.appendChild(header);
+
+                            if (resultData.counts.total > 0) {
+                                header.querySelector('.copy-all-source-btn').addEventListener('click', (e) => {
+                                    const linksToCopy = Array.from(sourceGroup.querySelectorAll('[data-full-link]')).map(el => el.dataset.fullLink).join('\n');
+                                    copyToClipboard(linksToCopy, e.currentTarget);
+                                });
+                            }
+
+                            const linksContainer = document.createElement('div');
+                            resultData.linkElements.forEach(el => linksContainer.appendChild(el));
+                            sourceGroup.appendChild(linksContainer);
+                        };
+                        
+                        linkOutput.innerHTML = ''; // Clear the placeholder text before adding results
+
+                        if (jsonBlockText) {
+                            totalSourcesProcessed++;
+                            try {
+                                const config = JSON.parse(jsonBlockText);
+                                processAndDisplay(config, "Source: Pasted JSON", linkOutput);
+                            } catch (e) {
+                                 const errorGroup = document.createElement('div');
+                                 linkOutput.appendChild(errorGroup);
+                                 displayError(errorGroup, `<b>Source: Pasted JSON</b><br>The pasted text is not valid JSON.`);
+                            }
+                        }
+
+                        if (urlLines.length > 0) {
+                            const fetchPromises = urlLines.map(url => {
+                                return fetchWithProxies(url)
+                                    .then(response => response.text())
+                                    .then(text => ({ status: 'fulfilled', value: text, url }))
+                                    .catch(error => ({ status: 'rejected', reason: error, url }));
+                            });
+
+                            const results = await Promise.all(fetchPromises);
+                            results.forEach(result => {
+                                totalSourcesProcessed++;
+                                if (result.status === 'fulfilled') {
+                                    try {
+                                        const config = JSON.parse(result.value);
+                                        processAndDisplay(config, `Source: ${result.url}`, linkOutput);
+                                    } catch (e) {
+                                        const errorGroup = document.createElement('div');
+                                        linkOutput.appendChild(errorGroup);
+                                        displayError(errorGroup, `<b>Source: ${result.url}</b><br>Fetched content is not valid JSON.`);
+                                    }
+                                } else {
+                                    const errorGroup = document.createElement('div');
+                                    linkOutput.appendChild(errorGroup);
+                                    displayError(errorGroup, `<b>Source: ${result.url}</b><br>${result.reason.message}`);
+                                }
+                            });
+                        }
+                        
+                        const summaryContainer = document.createElement('div');
+                        summaryContainer.className = "mb-4 space-y-4";
+                        
+                        const summaryInfo = document.createElement('div');
+                        summaryInfo.className = "info-message text-slate-600 bg-slate-100 dark:bg-slate-800 dark:text-slate-300 border border-slate-300 dark:border-slate-700 rounded-md p-3";
+                        summaryInfo.innerHTML = `<i class="fas fa-check-circle mr-2"></i>Finished! Found a total of <b>${totalLinksFound}</b> links from <b>${totalSourcesProcessed}</b> source(s).`;
+                        summaryContainer.appendChild(summaryInfo);
+
+                        if(totalLinksFound > 0) {
+                            const globalToolbar = document.createElement('div');
+                            globalToolbar.className = 'source-group bg-slate-100 dark:bg-slate-800 p-4 rounded-lg';
+                            globalToolbar.innerHTML = `<h3 class="font-semibold text-slate-800 dark:text-slate-100 mb-2">Global Results</h3>`;
+                            
+                            const buttonsContainer = document.createElement('div');
+                            buttonsContainer.className = "flex flex-wrap";
+                            
+                            Object.entries(allLinksByType).forEach(([protocol, links]) => {
+                                const btn = document.createElement('button');
+                                btn.className = 'btn bg-teal-100 text-teal-700 dark:bg-teal-900/50 dark:text-teal-300 text-sm font-medium py-1 px-3 rounded-full mr-2 mb-2';
+                                btn.innerHTML = `<i class="fas fa-copy mr-1"></i> Copy All ${links.length} ${protocol}`;
+                                btn.addEventListener('click', (e) => {
+                                    const linksToCopy = Array.from(linkOutput.querySelectorAll(`[data-protocol="${protocol}"]`)).map(el => el.dataset.fullLink).join('\n');
+                                    copyToClipboard(linksToCopy, e.currentTarget);
+                                });
+                                buttonsContainer.appendChild(btn);
+                            });
+
+                            globalToolbar.appendChild(buttonsContainer);
+                            summaryContainer.appendChild(globalToolbar);
+                        }
+
+                        linkOutput.prepend(summaryContainer);
+
+                    } catch (error) {
+                        console.error("Conversion Error:", error);
+                        displayError(linkOutput, `An unexpected error occurred: ${error.message}`);
+                    } finally {
+                        toJsonBtn.disabled = false;
+                        toJsonBtn.innerHTML = originalBtnHTML;
+                    }
+                });
+            }
+
+            // 2. Link to JSON Conversion
+            const fromJsonBtn = document.getElementById('fromJsonBtn');
+            const linkInput = document.getElementById('linkInput');
+            const jsonOutputCode = document.getElementById('jsonOutput').querySelector('code');
+            const copyJsonBtn = document.getElementById('copyJsonBtn');
+
+            if(fromJsonBtn) {
+                fromJsonBtn.addEventListener('click', () => {
+                    const links = linkInput.value.split('\n').filter(line => line.trim() !== '');
+                    if (links.length === 0) {
+                        jsonOutputCode.textContent = '// No links provided.';
+                        copyJsonBtn.classList.add('opacity-0');
+                        return;
+                    }
+
+                    const outbounds = [];
+                    let hasError = false;
+
+                    links.forEach(link => {
+                        try {
+                            const trimmedLink = link.trim();
+                            if (trimmedLink.startsWith('{')) {
+                                throw new Error("It looks like you pasted JSON. Please use the 'JSON to Links' converter.");
+                            }
+                            if (trimmedLink.startsWith('http://') || trimmedLink.startsWith('https://')) {
+                                 throw new Error("It looks like you pasted a subscription URL. Please use the 'JSON to Links' tool to extract links from URLs.");
+                            }
+                            const url = new URL(trimmedLink);
+                            const outbound = {
+                                tag: decodeURIComponent(url.hash.substring(1)) || `generated-${url.protocol.slice(0, -1)}`,
+                                server: url.hostname,
+                                server_port: parseInt(url.port, 10),
+                            };
+
+                            switch (url.protocol) {
+                                case 'vless:':
+                                    outbound.type = 'vless';
+                                    outbound.uuid = url.username;
+                                    outbound.tls = { enabled: true };
+                                    outbound.transport = {};
+                                    
+                                    url.searchParams.forEach((value, key) => {
+                                        switch (key) {
+                                            case 'type': outbound.transport.type = value; break;
+                                            case 'path': outbound.transport.path = value; break;
+                                            case 'host': outbound.transport.host = value; break;
+                                            case 'security': 
+                                                if (value === 'reality') outbound.tls.reality = { enabled: true };
+                                                break;
+                                            case 'sni': outbound.tls.server_name = value; break;
+                                            case 'fp': outbound.tls.utls = { enabled: true, fingerprint: value }; break;
+                                            case 'pbk': if(!outbound.tls.reality) outbound.tls.reality = { enabled: true }; outbound.tls.reality.public_key = value; break;
+                                            case 'sid': if(!outbound.tls.reality) outbound.tls.reality = { enabled: true }; outbound.tls.reality.short_id = value; break;
+                                            case 'flow': outbound.flow = value; break;
+                                        }
+                                    });
+                                    break;
+
+                                case 'hy2:':
+                                case 'hysteria2:':
+                                    outbound.type = 'hysteria2';
+                                    outbound.password = url.username;
+                                    if (url.searchParams.has('obfs')) {
+                                        outbound.obfs = { type: url.searchParams.get('obfs'), password: url.searchParams.get('obfs-password') || '' };
+                                    }
+                                    if (url.searchParams.get('insecure') === '1') {
+                                        outbound.tls = { enabled: true, insecure: true };
+                                    }
+                                    if (url.searchParams.has('sni')) {
+                                        if(!outbound.tls) outbound.tls = { enabled: true };
+                                        outbound.tls.server_name = url.searchParams.get('sni');
+                                    }
+                                    break;
+                                    
+                                case 'http:':
+                                     outbound.type = 'http';
+                                     outbound.username = decodeURIComponent(url.username);
+                                     outbound.password = decodeURIComponent(url.password);
+                                     break;
+
+                                default:
+                                    throw new Error(`Unsupported protocol: ${url.protocol}`);
+                            }
+                            outbounds.push(outbound);
+                        } catch (error) {
+                            console.error('Link parsing error:', error);
+                            hasError = true;
+                            jsonOutputCode.innerHTML = `<span class="text-red-500">// Error: ${error.message}</span>`;
+                        }
+                    });
+
+                    if (!hasError) {
+                         if (outbounds.length > 0) {
+                            const finalJson = {
+                                outbounds: outbounds
+                            };
+                            jsonOutputCode.textContent = JSON.stringify(finalJson, null, 2);
+                            copyJsonBtn.classList.remove('opacity-0');
+                        } else {
+                             jsonOutputCode.textContent = '// No valid links found to convert.';
+                             copyJsonBtn.classList.add('opacity-0');
+                        }
+                    }
+                });
+            }
+            
+            if(copyJsonBtn) {
+                copyJsonBtn.addEventListener('click', (e) => {
+                    copyToClipboard(jsonOutputCode.textContent, e.currentTarget);
+                });
+            }
+            
+            // 3. QR Code Generator
+            const generateQrBtn = document.getElementById('generateQrBtn');
+            const qrCodeInput = document.getElementById('qrCodeInput');
+            const qrCodeOutput = document.getElementById('qrCodeOutput');
+
+            if (generateQrBtn) {
+                generateQrBtn.addEventListener('click', () => {
+                    const text = qrCodeInput.value.trim();
+                    qrCodeOutput.innerHTML = '';
+                    if (text) {
+                        const canvas = document.createElement('canvas');
+                        canvas.id = 'qrCodeCanvas';
+                        qrCodeOutput.appendChild(canvas);
+                        QRCode.toCanvas(canvas, text, { width: 180, margin: 2 }, function (error) {
+                            if (error) {
+                                console.error(error);
+                                displayError(qrCodeOutput, 'Could not generate QR code.');
+                            }
+                        });
+                    } else {
+                        qrCodeOutput.innerHTML = '<p class="text-slate-500 dark:text-slate-400">Please paste a link first.</p>';
+                    }
+                });
+            }
+
+            // 4. Sing-Box Link Extractor
+            const extractUrlBtn = document.getElementById('extractUrlBtn');
+            const singboxLinkInput = document.getElementById('singboxLinkInput');
+            const extractedUrlOutput = document.getElementById('extractedUrlOutput');
+
+            if (extractUrlBtn) {
+                extractUrlBtn.addEventListener('click', () => {
+                    extractedUrlOutput.innerHTML = ''; // Clear previous results
+                    const link = singboxLinkInput.value.trim();
+
+                    if (!link) {
+                        displayError(extractedUrlOutput, 'Please paste a sing-box link.');
+                        return;
+                    }
+
+                    if (!link.startsWith('sing-box://import-remote-profile')) {
+                        displayError(extractedUrlOutput, 'Invalid format. Link must start with "sing-box://import-remote-profile".');
+                        return;
+                    }
+
+                    try {
+                        const parsableLink = 'http://dummy.com' + link.substring('sing-box://import-remote-profile'.length);
+                        const urlObj = new URL(parsableLink);
+                        const encodedUrl = urlObj.searchParams.get('url');
+
+                        if (!encodedUrl) {
+                            throw new Error('The link does not contain a "url" parameter.');
+                        }
+
+                        const decodedUrl = decodeURIComponent(encodedUrl);
+                        
+                        const resultElement = document.createElement('div');
+                        resultElement.className = 'bg-slate-100 dark:bg-slate-800 p-3 rounded-md flex items-center justify-between gap-4';
+                        resultElement.innerHTML = `
+                            <span class="output-link text-sm text-slate-700 dark:text-slate-300">${decodedUrl}</span>
+                            <button class="copy-btn bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-3 py-1 rounded-md text-xs flex-shrink-0 hover:bg-slate-300 dark:hover:bg-slate-600">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                        `;
+                        extractedUrlOutput.appendChild(resultElement);
+                        resultElement.querySelector('.copy-btn').addEventListener('click', (e) => copyToClipboard(decodedUrl, e.currentTarget));
+
+                    } catch (error) {
+                        console.error("Sing-Box link parsing error:", error);
+                        displayError(extractedUrlOutput, `Error parsing link: ${error.message}`);
+                    }
+                });
+            }
+            
+            // 5. Beautify Names with Gemini
+            const beautifyRunBtn = document.getElementById('beautifyRunBtn');
+            const beautifyInput = document.getElementById('beautifyInput');
+            const beautifyOutput = document.getElementById('beautifyOutput');
+            const copyBeautifiedBtn = document.getElementById('copyBeautifiedBtn');
+            
+            if (beautifyRunBtn) {
+                beautifyRunBtn.addEventListener('click', () => handleBeautifyLinksInTextarea(beautifyRunBtn, beautifyInput, beautifyOutput, copyBeautifiedBtn));
+            }
+            if (copyBeautifiedBtn) {
+                copyBeautifiedBtn.addEventListener('click', (e) => copyToClipboard(beautifyOutput.value, e.currentTarget));
+            }
+
+            async function handleBeautifyLinksInTextarea(button, textarea, outputElement, copyBtn) {
+                const originalBtnHTML = button.innerHTML;
+                button.disabled = true;
+                button.innerHTML = `<i class="fas fa-spinner fa-spin mr-1"></i>Beautifying...`;
+                outputElement.value = "// Beautifying...";
+                copyBtn.classList.add('opacity-0');
+
+                const apiKey = localStorage.getItem('geminiApiKey');
+                if (!apiKey) {
+                    outputElement.value = "// Please save a Gemini API key in the section below first.";
+                    button.disabled = false;
+                    button.innerHTML = originalBtnHTML;
+                    return;
+                }
+
+                const links = textarea.value.split('\n').filter(line => line.trim() !== '');
+                if (links.length === 0) {
+                    outputElement.value = "// No links to beautify.";
+                    button.disabled = false;
+                    button.innerHTML = originalBtnHTML;
+                    return;
+                }
+                
+                const originalTags = links.map(link => {
+                    try {
+                        return decodeURIComponent(new URL(link).hash.substring(1));
+                    } catch {
+                        return null;
+                    }
+                }).filter(Boolean);
+
+                if (originalTags.length === 0) {
+                     outputElement.value = "// No valid link names found to beautify.";
+                     button.disabled = false;
+                     button.innerHTML = originalBtnHTML;
+                     return;
+                }
+                
+                const prompt = `
+                    Analyze the following list of proxy server names (tags). For each name, suggest a cleaner, more readable version.
+                    Rules:
+                    1. Identify the country and represent it with a flag emoji at the beginning.
+                    2. Remove redundant text, URLs, and special characters.
+                    3. Create a short, descriptive name (e.g., "Germany-UDP-1", "NL-Akamai-5").
+                    4. If a name is already clean, you can keep it as is.
+                    5. Return the result as a single JSON object mapping each original name to its new, beautified name.
+
+                    Example Input: ["@KevinZakarian-VPNy.net-1", "(@KevinZakarian)-DE-UDP-Akamai"]
+                    Example Output: { "@KevinZakarian-VPNy.net-1": "🇮🇷 IR - Server 1", "(@KevinZakarian)-DE-UDP-Akamai": "🇩🇪 DE - UDP Akamai" }
+
+                    Here is the list of names to process:
+                    ${JSON.stringify(originalTags)}
+                `;
+
+                try {
+                    let chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
+                    const payload = { 
+                        contents: chatHistory,
+                        generationConfig: {
+                            responseMimeType: "application/json",
+                        }
+                    };
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                    
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(`API request failed: ${errorData.error?.message || response.statusText}`);
+                    }
+
+                    const result = await response.json();
+                    
+                    if (result.candidates && result.candidates[0].content.parts[0].text) {
+                        const beautifiedNames = JSON.parse(result.candidates[0].content.parts[0].text);
+                        const newLinks = links.map(link => {
+                            try {
+                                const url = new URL(link);
+                                const originalTag = decodeURIComponent(url.hash.substring(1));
+                                const newTag = beautifiedNames[originalTag];
+                                if (newTag) {
+                                    url.hash = encodeURIComponent(newTag);
+                                    return url.toString();
+                                }
+                            } catch {
+                                // ignore invalid links
+                            }
+                            return link;
+                        });
+                        outputElement.value = newLinks.join('\n');
+                        copyBtn.classList.remove('opacity-0');
+                    } else {
+                        throw new Error("Invalid response from AI model.");
+                    }
+
+                } catch (error) {
+                    console.error("Beautify Error:", error);
+                    outputElement.value = `// Error during beautification: ${error.message}`;
+                } finally {
+                    button.disabled = false;
+                    button.innerHTML = originalBtnHTML;
+                }
+            }
+
+
+            // 6. API Key Management
+            const apiKeyInput = document.getElementById('apiKeyInput');
+            const saveApiKeyBtn = document.getElementById('saveApiKeyBtn');
+            const apiKeyStatus = document.getElementById('apiKeyStatus');
+
+            function updateApiKeyStatus() {
+                const key = localStorage.getItem('geminiApiKey');
+                if (key) {
+                    apiKeyStatus.textContent = "API Key is saved in your browser.";
+                    apiKeyStatus.className = "text-sm text-green-600 dark:text-green-400 mt-2";
+                } else {
+                    apiKeyStatus.textContent = "No API Key saved. Beautifier is disabled.";
+                     apiKeyStatus.className = "text-sm text-slate-500 dark:text-slate-400 mt-2";
+                }
+            }
+
+            if(saveApiKeyBtn) {
+                saveApiKeyBtn.addEventListener('click', () => {
+                    const key = apiKeyInput.value.trim();
+                    if (key) {
+                        localStorage.setItem('geminiApiKey', key);
+                        apiKeyInput.value = ''; // Clear the input after saving
+                    } else {
+                        localStorage.removeItem('geminiApiKey');
+                    }
+                    updateApiKeyStatus();
+                });
+            }
+            
+            // 7. Theme Toggle
+            const themeToggle = document.getElementById('theme-toggle');
+            if(themeToggle) {
+                themeToggle.addEventListener('click', () => {
+                    document.documentElement.classList.toggle('dark');
+                    if (document.documentElement.classList.contains('dark')) {
+                        localStorage.theme = 'dark';
+                    } else {
+                        localStorage.theme = 'light';
+                    }
+                });
+            }
+
+            // Initial status check on load
+            updateApiKeyStatus();
+        });
+
+    </script>
+</body>
+</html>
