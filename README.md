@@ -2,7 +2,7 @@
 
 A simple, client-side web tool to convert between various proxy configuration formats (V2Ray, Hysteria2, etc.) and their corresponding shareable links.
 
-![Screenshot of the tool] <!-- (Optional but highly recommended: take a screenshot and upload it to the repo) -->
+![image](https://github.com/user-attachments/assets/6a438390-4a96-42aa-85c2-d011edd47152)
 
 ## Features
 
